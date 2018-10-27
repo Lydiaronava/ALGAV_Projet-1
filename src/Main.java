@@ -1,7 +1,9 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
+
 
 public class Main {
 
@@ -27,37 +29,32 @@ public class Main {
 		k2 = new BigInteger(key2.substring(2),16);
 		System.out.println("k1 < k2 : "+k1.compareTo(k2));
 		
-		// Récupération de fichier.
-		
-		FileInputStream in = null;
+		// Récupération de toute les lignes du fichier.
+	    
+		BufferedReader reader = null;
 
-	    try {
-	    	try {
-				in = new FileInputStream(".txt");
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-         
-	    	int c;
-	    	try {
-				while ((c = in.read()) != -1) {
-					System.out.println(c);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    }finally {
-	    	if (in != null) {
-	    		try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	    	}
-	    }
+		try {
+		    File file = new File("data/cles_alea/jeu_1_nb_cles_100.txt");
+		    reader = new BufferedReader(new FileReader(file));
+
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+		        System.out.println(line);
+		    }
+
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        reader.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+	    
+	    
+	    
+	    
 	}
 
 }
