@@ -11,9 +11,11 @@ import filebinomiale.*;
 
 public class Main {
 
+
+	
 	public static void main(String[] args) {
 		
-		
+	
 		ArbreBinomial tst = new ArbreBinomial(4);
 		ArbreBinomial tst2 = new ArbreBinomial(5);
 		
@@ -26,7 +28,8 @@ public class Main {
 		//System.out.println(tst.getCle());
 		//tst.afficherArbre();
 		
-		FileBinomiale FB = new FileBinomiale(tst);
+		FileBinomiale FB = new FileBinomiale(tst);	//ok
+		
 		ArbreBinomial t1 = new ArbreBinomial(40);
 		ArbreBinomial t2 = new ArbreBinomial(50);
 		t1.union(t2);
@@ -50,20 +53,32 @@ public class Main {
 		ab.union(ab2);
 		ab3.union(ab4);
 		ab.union(ab3);
-		
-		
-		
-		//ab = ab.union(tst);
-		
 		//ab.afficherArbre();
-		FileBinomiale FB2 = new FileBinomiale(ab);
+		
+		ArbreBinomial a = new ArbreBinomial(44);
+		ArbreBinomial b = new ArbreBinomial(68);
+		ArbreBinomial c = new ArbreBinomial(7);
+		ArbreBinomial d = new ArbreBinomial(11);
+		a.union(b);
+		c.union(d);
+		a = a.union(c);
+		 
+		//c.afficherArbre();
+		//a.afficherArbre();
+		
+		a = a.union(ab);		//ok
+		//a.afficherArbre();
+		
+		
+		FileBinomiale FB2 = new FileBinomiale(a);
 		
 		//FB2.afficherFileB();		//ok
 		
 		//FB = FB.reste();		//ok
 		//FB.afficherFileB();
 		
-		FileBinomiale FB3 = FB.union(FB,FB2);
+		FileBinomiale FB3 = new FileBinomiale();
+		FB3 = FB3.unionFile(FB,FB2);
 		FB3.afficherFileB();
 		
 		

@@ -17,16 +17,16 @@ public class FileBinomiale {
 	
 	public FileBinomiale ajouterArbre(ArbreBinomial A) {
 		if(!estVide()) {
-			return union(this, new FileBinomiale(A));
+			return unionFile(this, new FileBinomiale(A));
 		}
 		else 	
 			return new FileBinomiale(A);
 	}
 	
-	public FileBinomiale union(FileBinomiale F1, FileBinomiale F2) {
-		F1.afficherFileB();
-		F2.afficherFileB();
-		System.out.println("//////////////////////////////////////////////////////////////////");
+	public FileBinomiale unionFile(FileBinomiale F1, FileBinomiale F2) {
+		//F1.afficherFileB();
+		//F2.afficherFileB();
+		//System.out.println("//////////////////////////////////////////////////////////////////");
 		return unionRetenue(F1, F2, new ArbreBinomial());
 	}
 	
@@ -34,42 +34,65 @@ public class FileBinomiale {
 	private FileBinomiale unionRetenue(FileBinomiale F1, FileBinomiale F2, ArbreBinomial ret) {
 		//System.out.println("entrée dans union");
 		//Cas sans retenue
+		/*
+		System.out.println(" LA FILE F1");
+		F1.afficherFileB();
+		System.out.println(" LA FILE F2");
+		F2.afficherFileB();
+		System.out.println(" L'ARBRE RETENUE");
+		ret.afficherArbre();
+		System.out.println("THIS");
+		this.afficherFileB();
+		System.out.println("//////////////////////////////////////////////////////////////////");
+		
+		*/
+		
+		
+		
 		if(ret.estVide()) {	//System.out.println("	cas sans retenue");
-			if(F1.estVide())
+			if(F1.estVide()) {
+				System.out.println("la file F1 est vide \n");
 				return F2;
-			if(F2.estVide())
+			}
+			if(F2.estVide()) {
+				System.out.println("La file F2 est vide \n");
 				return F1;
+			}
 			
 			ArbreBinomial tmp1 = F1.degreMin();
 			ArbreBinomial tmp2 = F2.degreMin();
-			if(tmp1.getDegre() < tmp2.getDegre())
-				return ajoutMin(tmp1, union(F1.reste(), F2));
-			if(tmp2.getDegre() < tmp1.getDegre())
-				return ajoutMin(tmp2, union(F2.reste(), F1));
-			if(tmp1.getDegre() == tmp2.getDegre())
-				return unionRetenue(F1.reste(), F2.reste(), tmp1.union(tmp2));
+			if(tmp1.getDegre() < tmp2.getDegre()) { 
+				System.out.println("degreMin(F1) < degreMin(F2) \n");
+				ajoutMin(tmp1, unionFile(F1.reste(), F2));
+			}
+			if(tmp2.getDegre() < tmp1.getDegre()) {
+				ajoutMin(tmp2, unionFile(F2.reste(), F1));
+			}
+			if(tmp1.getDegre() == tmp2.getDegre()) {
+				unionRetenue(F1.reste(), F2.reste(), tmp1.union(tmp2));
+			}
 		}
 		else {		//System.out.println("	cas avec retenue");
 			if(F1.estVide() && F2.estVide()) {
-				return ret.file();
+				ret.file();
 			}
 			if(F1.estVide())
-				return union(ret.file(), F2);
+				unionFile(ret.file(), F2);
 			if(F2.estVide())
-				return union(ret.file(), F1);
+				unionFile(ret.file(), F1);
 			
 			ArbreBinomial tmp1 = F1.degreMin();
 			ArbreBinomial tmp2 = F2.degreMin();
 			if(ret.getDegre() < tmp1.getDegre() && ret.getDegre() < tmp2.getDegre())
-				return ajoutMin(ret, union(F1,F2));
+				ajoutMin(ret, unionFile(F1,F2));
 			if(ret.getDegre() == tmp1.getDegre() && ret.getDegre() == tmp2.getDegre())
-				return ajoutMin(ret, unionRetenue(F1.reste(), F2.reste(), tmp1.union(tmp1)));
+				ajoutMin(ret, unionRetenue(F1.reste(), F2.reste(), tmp1.union(tmp2)));
 			if(ret.getDegre() == tmp1.getDegre() && ret.getDegre() < tmp2.getDegre())
-				return unionRetenue(F1.reste(), F2, tmp1.union(ret));
+				unionRetenue(F1.reste(), F2, tmp1.union(ret));
 			if(ret.getDegre() == tmp2.getDegre() && ret.getDegre() < tmp1.getDegre())
-				return unionRetenue(F2.reste(), F1, tmp2.union(ret));
+				unionRetenue(F2.reste(), F1, tmp2.union(ret));
 		}
-		return null;
+		return this;
 	}
 	
 	
@@ -113,9 +136,11 @@ public class FileBinomiale {
 	
 	public FileBinomiale ajoutMin(ArbreBinomial A, FileBinomiale FB) {
 		
-		if(FB.estVide())
-			return new FileBinomiale(A);
+		if(FB.estVide()) {
+			FB.tete = A;
+		}
 		if(!A.estVide()) {
+			System.out.println("degre de A =  " + A.getDegre() + "     degre de minFB = " +FB.degreMin().getDegre() );
 			if(A.getDegre() < FB.degreMin().getDegre()) {
 				ArbreBinomial tmp = FB.tete;
 				while(tmp.getFrere() != null) {
@@ -123,11 +148,17 @@ public class FileBinomiale {
 				}
 				tmp.setFrere(A);
 				A.getRacine().setFrere(null);
-				return this;
+				System.out.println("La nouvelle file après ajoutMin\n");
+				FB.afficherFileB();
+				System.out.println("fin ajout min \n");
+				return FB;
 			}
 			else {
-				System.out.println("impossible d'ajouter");
-				return this;
+				System.out.println("impossible d'ajouter		l'arbre que vous avez essayé d'ajouter :");
+				A.afficherArbre();
+				System.out.println("la FB que vous essayer de compléter");
+				FB.afficherFileB();
+				return FB;
 			}
 		}
 		return null;
@@ -147,10 +178,11 @@ public class FileBinomiale {
 				i++;
 				System.out.println();
 				tmp = tmp.getFrere();
+				System.out.println("\n");
 			}
 		}
 		else {
-			System.out.println("La file binomiale est vide");
+			System.out.println("	La file binomiale est vide");
 		}
 	}
 	

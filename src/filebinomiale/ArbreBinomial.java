@@ -116,8 +116,11 @@ public class ArbreBinomial {
 					System.out.print(" " + tmpFrere.getCle());
 				}
 				System.out.println();
-
 			}
+			System.out.println("\n");
+		}
+		else {
+			System.out.println("	L'arbre est vide");
 		}
 	}
 
