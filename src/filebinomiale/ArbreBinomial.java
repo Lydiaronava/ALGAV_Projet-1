@@ -1,5 +1,7 @@
 package filebinomiale;
 
+import java.math.BigInteger;
+
 //import java.math.BigInteger;
 
 public class ArbreBinomial {
@@ -10,7 +12,7 @@ public class ArbreBinomial {
 	private ArbreBinomial fils;
 	private ArbreBinomial pere;
 	private int degre;
-	private int cle;
+	private BigInteger cle;
 	
 	//pointeur sur la racine
 	private ArbreBinomial racine;
@@ -20,11 +22,11 @@ public class ArbreBinomial {
 		fils = null;
 		pere = null;
 		degre = -1;
-		cle = -1;
+		cle = null;
 		racine = null;
 	}
 	
-	public ArbreBinomial(int cle) {
+	public ArbreBinomial(BigInteger cle) {
 		frere = null;
 		fils = null;
 		pere = null;
@@ -48,7 +50,7 @@ public class ArbreBinomial {
 	//doit retourner un ArbreBinomial pour l'utiliser dans union des FB
 	public ArbreBinomial union(ArbreBinomial A2)  {
 		if(degre() == A2.degre() && this != null && A2 != null) {
-			if(racine.getCle() < A2.racine.getCle()) {	//clé(this) < clé(A2)  --> la racine du nouvel arbre est la racine de this
+			if(racine.getCle().compareTo(A2.racine.getCle()) == -1) {	//clé(this) < clé(A2)  --> la racine du nouvel arbre est la racine de this
 				unionFrere(A2);
 				incremDegre();
 				return this;
@@ -120,7 +122,7 @@ public class ArbreBinomial {
 			System.out.println("\n");
 		}
 		else {
-			System.out.println("	L'arbre est vide");
+			//System.out.println("	L'arbre est vide");
 		}
 	}
 
@@ -156,11 +158,11 @@ public class ArbreBinomial {
 		this.degre = degre;
 	}
 
-	public int getCle() {
+	public BigInteger getCle() {
 		return cle;
 	}
 
-	public void setCle(int cle) {
+	public void setCle(BigInteger cle) {
 		this.cle = cle;
 	}
 	
