@@ -1,9 +1,14 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 
 public class HachageMD5 {
 	
 	
-	BigInteger hashMD5(/*un fichier*/) {
+	BigInteger hashMD5(File filein) {
 		
 		////////////////
 		/// initialisations
@@ -43,18 +48,59 @@ public class HachageMD5 {
 		/// préparation du message
 		///////////
 		
-		// ajouter le bit 1 à la fin du fichier
-		
-		//tant que taille(fichier) != 448mod512
-			//ajouter un bit 0
-		
-		//coder la taille du fichier en 64bits (il faut absolument que ce soit codé en little-endian!!)
-		
-		//ajouter la taille en 64bits à la fin du fichier
-			//--> on doit avoir un fichier dont la taille est un multiple de 512
-		
-		
-		
+		String name = filein.getName().replaceFirst("[.][^.]+$", "");
+		File fileout = new File(name + "bit.txt");
+		try {
+			FileInputStream fis = new FileInputStream(filein);
+			FileOutputStream fos = new FileOutputStream(fileout);
+			char current; String bitChar;
+			while(fis.available() > 0) {
+				current = (char) fis.read();
+				if(current == '\n' || current == ' ') {
+					continue;
+				}
+				bitChar = Integer.toBinaryString(current);
+				fos.write(bitChar.getBytes());
+				System.out.println(Integer.toBinaryString(current)+ "   " + current);
+			}
+			
+			//System.out.println(fileout.length() + " la taille");
+			fis.close();
+			String un = "1";
+			String zero = "0";
+			fos.write(un.getBytes());
+
+			int length = (int)fileout.length();
+			int n = 448 - length%512;
+			//System.out.println(length + " nb de bit à ajouter " + n);
+			
+			for(int i = 0; i < n ; i++) {
+				fos.write(zero.getBytes());
+			}
+			
+			String tmp = new StringBuilder(Long.toBinaryString(fileout.length())).reverse().toString();
+			//System.out.println(tmp.length() + tmp);
+			fos.write(tmp.getBytes());
+			for(int i = 0; i < (64-tmp.length()) ; i++) {
+				fos.write(zero.getBytes());
+			}
+			
+			
+			if(fileout.length()%512 == 0){
+				//System.out.println("bien joué ça marche " + fileout.length());
+			}
+			
+			fos.close();
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//le message est prêt
 		
 		////////////////
 		////algo
@@ -64,50 +110,104 @@ public class HachageMD5 {
 			b = b0, 
 			c = c0, 
 			d = d0;		//init des valeurs de hachage
+		
+		try {
+			FileInputStream fis = new FileInputStream(fileout);
+			int nbite = (int)fileout.length()/512;
 			
-		//pour chaque bloc de 512 bits
-			//créer un tableau w de 16 cases --> chaque case contient 32 bits du bloc (encore en little-endian) 
-			int[] w = new int[16];
+			String[] wstr = new String[16];
 			
-			
-			int f=0, g=0;
-			for(int i=0; i<64; i++) {
-				
-				if(i >= 0 && i < 16) {
-					f = (b & c) | (~d & c);
-					g = i;
-				}
-				if(i >= 16 && i < 32) {
-					f = (d & b) | (~d & c );
-					g = (5*i + 1) % 16;
-				}
-				if(i >= 32 && i < 48) {
-					f = b ^ c ^ d;
-					g = (3*i + 5) % 16;
-				}
-				if(i >= 48 && i < 64) {
-					f = c ^(b | ~d);
-					g = (7*i) % 16;
+			for(int n = 0; n < nbite; n++) {
+				for(int j = 0; j < 16; j++) {
+					String str = null;
+					for(int l = 0; l<32; l++) {
+						str += (char) fis.read();
+					}
+					str = new StringBuilder(str).reverse().toString();
+					wstr[j] = str;
 				}
 				
-				int temp = d;
-				d = c;
-				c = b;
-				int tempb = ((a + f + k[i] + w[g]));
-				b = Integer.rotateLeft(tempb,r[i]) + b;
-				a = temp;
+				int[] w = new int[16];
+				for(int j = 0; j < 16; j++) {
+					w[j] = Integer.parseInt(wstr[j],2);		//string to int en base 2
+				}
+				
+				
+				
+				int f=0, g=0;
+				for(int i=0; i<64; i++) {
+					
+					if(i >= 0 && i < 16) {
+						f = (b & c) | (~d & c);
+						g = i;
+					}
+					if(i >= 16 && i < 32) {
+						f = (d & b) | (~d & c );
+						g = (5*i + 1) % 16;
+					}
+					if(i >= 32 && i < 48) {
+						f = b ^ c ^ d;
+						g = (3*i + 5) % 16;
+					}
+					if(i >= 48 && i < 64) {
+						f = c ^(b | ~d);
+						g = (7*i) % 16;
+					}
+					
+					int temp = d;
+					d = c;
+					c = b;
+					int tempb = ((a + f + k[i] + w[g]));
+					b = Integer.rotateLeft(tempb,r[i]) + b;
+					a = temp;
+				}
+				a0 += a;
+				b0 += b;
+				c0 += c;
+				d0 += d;
+				
 			}
-			a0 += a;
-			b0 += b;
-			c0 += c;
-			d0 += d;
-		//fin pour
+			
+			String h0 = paddedInt32(Integer.toBinaryString(a0));
+			String h1 = paddedInt32(Integer.toBinaryString(b0));
+			String h2 = paddedInt32(Integer.toBinaryString(c0));
+			String h3 = paddedInt32(Integer.toBinaryString(d0));
+			h0 = h0 + h1 + h2 + h3;
+			
+			return new BigInteger(h0);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 			
 		//résultat = a0 concaténé à a1 concaténé à a2 concaténé à a3  (en little endian)
 		
-			
+		return new BigInteger("0");
 		
 	}
-			
+
+	String paddedInt32(String str) {
+		int N =32 - str.length();
+		String s = "";
+		s+=str;
+		for(int i=0; i < N; i++) {
+			s += "0";
+		}
+		//s+=str;
+		//s = new StringBuilder(s).reverse().toString();
+		return s;
+	}
+	
+	int main() {
+		File file = new File("test.txt");
+		BigInteger result = hashMD5(file);
+		System.out.println(result);
+		
+		return 0;
+		
+	}
 
 }
