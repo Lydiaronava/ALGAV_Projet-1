@@ -240,10 +240,10 @@ public class FileBinomiale {
 	
 	public void creerGraphe(Hashtable<Integer, Double> hash) {
 		XYSeries series = new XYSeries("");
-		Set<Integer> set = hash.keySet();
-		for(Integer key : set) {
+		Set<Integer> set = hash.keySet();		//
+		for(Integer key : set) {				//
 			series.add(key, hash.get(key));
-		}	
+		}										//
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.addSeries(series);
 		
