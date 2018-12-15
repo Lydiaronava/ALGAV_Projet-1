@@ -241,18 +241,23 @@ public class FileBinomiale {
 	public void creerGraphe(Hashtable<Integer, Double> hash) {
 		XYSeries series = new XYSeries("");
 		Set<Integer> set = hash.keySet();		//
-		for(Integer key : set) {				//
+		for(Integer key : set) {			//
+			//pour chacun de tes résultats tu ajoutes tes coordonnées grâce à ctte fonction
 			series.add(key, hash.get(key));
 		}										//
+		//tu mets tes coordonnées dans un dataset
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.addSeries(series);
 		
+		//tu changes les titres par rapport à tes résultats
+		//Titres du graphes , titre axe abscisses, titre axe ordonnées, ton dataset
 		JFreeChart chart = ChartFactory.createXYLineChart(
 				"Complexité ConsIter sur FileBinomiale", 
 				"Nombre de clés", 
 				"Complexité en ms", 
 				dataset);
 		try {
+			//là il faut juste changer le nom de ton fichier de sortie
 			ChartUtilities.saveChartAsJPEG(new File("FBcomplexConsIter.jpg"), chart, 500, 300);
 		} catch (IOException e) {
 			System.err.println("Problem occurred creating chart.");
