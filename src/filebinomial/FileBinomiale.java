@@ -1,23 +1,23 @@
-package filebinomiale;
+package filebinomial;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Enumeration;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Set;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
+
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
+import tas.FileNameComparator;
+import tas.array.TasArray;
 
 public class FileBinomiale {
 
@@ -222,9 +222,9 @@ public class FileBinomiale {
 			time = System.currentTimeMillis() - time;
 			//time = System.nanoTime();
 			hash.put(k, hash.get(k) + time);
-			
+
 		}
-		System.out.println(hash);
+		//System.out.println(hash);
 		
 		hash.put(100, hash.get(100)/5);
 		hash.put(1000, hash.get(1000)/5);
@@ -234,7 +234,68 @@ public class FileBinomiale {
 		hash.put(500, hash.get(500)/5);
 		hash.put(5000, hash.get(5000)/5);
 		hash.put(50000, hash.get(50000)/5);
+		//System.out.println(hash);
+		return hash;
+	}
+	
+	public Hashtable<Integer, Double> resultUnion(){
+		Hashtable<Integer, Double> hash = new Hashtable<Integer, Double>(8);
+		hash.put(100, 0.0);
+		hash.put(1000, 0.0);
+		hash.put(10000, 0.0);
+		hash.put(200, 0.0);
+		hash.put(20000, 0.0);
+		hash.put(500, 0.0);
+		hash.put(5000, 0.0);
+		hash.put(50000, 0.0);
+		
+		File j1 = new File("data/cles_trié/jeu_1/");
+		File j2 = new File("data/cles_trié/jeu_2/");
+		File j3 = new File("data/cles_trié/jeu_3/");
+		File j4 = new File("data/cles_trié/jeu_4/");
+		File j5 = new File("data/cles_trié/jeu_5/");
+		
+		File[][] listejx = new File[5][1];
+		listejx[0] = j1.listFiles();
+		listejx[1] = j2.listFiles();
+		listejx[2] = j3.listFiles();
+		listejx[3] = j4.listFiles();
+		listejx[4] = j5.listFiles();
+		
+		for (File[] files : listejx) {
+			Arrays.sort(files, new FileNameComparator());
+		}
+		
+		for(File[] files : listejx) {
+			File filepivot = files[files.length/2];
+			
+			for(File f : files) {
+				FileBinomiale FB = new FileBinomiale();
+				FB = FB.consIter(filepivot);
+				FileBinomiale FB2 = new FileBinomiale();
+				FB2=FB2.consIter(f);
+				String str = f.getName();
+				str = str.replaceAll("\\D+","");
+				str = str.substring(1, str.length());
+				int k = Integer.parseInt(str);
+				
+				long time = System.currentTimeMillis();
+				FB2.unionFile(FB, FB2);
+				time = System.currentTimeMillis() - time;
+				hash.put(k, hash.get(k) + time);
+			}
+		}
 		System.out.println(hash);
+		hash.put(100, hash.get(100)/5);
+		hash.put(1000, hash.get(1000)/5);
+		hash.put(10000, hash.get(10000)/5);
+		hash.put(200, hash.get(200)/5);
+		hash.put(20000, hash.get(20000)/5);
+		hash.put(500, hash.get(500)/5);
+		hash.put(5000, hash.get(5000)/5);
+		hash.put(50000, hash.get(50000)/5);
+		System.out.println(hash);
+		
 		return hash;
 	}
 	

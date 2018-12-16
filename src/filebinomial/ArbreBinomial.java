@@ -1,4 +1,4 @@
-package filebinomiale;
+package filebinomial;
 
 import java.math.BigInteger;
 
