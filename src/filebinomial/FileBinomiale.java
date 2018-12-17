@@ -17,7 +17,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import tas.FileNameComparator;
-import tas.array.TasArray;
 
 public class FileBinomiale {
 
@@ -36,6 +35,9 @@ public class FileBinomiale {
 
 	public FileBinomiale ajouterArbre(ArbreBinomial A) {
 		if(!estVide()) {
+			if(min.getCle().compareTo(A.getCle()) > 0) {
+				min = A;
+			}
 			return unionFile(this, new FileBinomiale(A));
 		}
 		else 	
@@ -158,18 +160,43 @@ public class FileBinomiale {
 		return null;
 	}
 
-	//fonction qui ajoute les clés une par une, directement depuis le fichier
-	public FileBinomiale consIter(File file) {
-		BufferedReader reader = null;
+	//fonction qui ajoute les clés une par une
+	public FileBinomiale consIter(BigInteger[] tab) {
 		FileBinomiale FB = new FileBinomiale();
+		for(int i = 0; i < tab.length; i++){
+			FB = FB.ajouterArbre(new ArbreBinomial(tab[i]));
+		}
+		return FB;
+	}
+
+	public BigInteger[] fileToArray(File file) {
+		BufferedReader reader = null;
+		BigInteger[] bgs = new BigInteger[0];
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			String line;
+			int cpt = 0;
+			while ((line = reader.readLine()) != null) {
+				cpt++;
+			}
+			bgs = new BigInteger[cpt];
+		} catch(IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				reader.close();
+			}catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		try {
 			reader = new BufferedReader(new FileReader(file));
 			String line;
+			int cpt = 0;
 			while ((line = reader.readLine()) != null) {
-				BigInteger key = new BigInteger(line.substring(2), 16);
-				//System.out.println(key);
-				FB = FB.ajouterArbre(new ArbreBinomial(key));
+				bgs[cpt] = new BigInteger(line.substring(2), 16);
+				cpt++;
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -180,20 +207,30 @@ public class FileBinomiale {
 				e.printStackTrace();
 			}
 		}
-		return FB;
+
+
+		return bgs;
 	}
 
-	public void supprimerMin() {
-		ArbreBinomial A = this.tete;
-		if(A.getFrere() == null) {
-			this.tete = null;
+	public FileBinomiale supprimerMin() {
+		//ArbreBinomial minVal = min;
+		FileBinomiale decap = min.decapiter();
+		
+		//supprimer l'arbre du min dans la FB
+		ArbreBinomial temp = tete;
+		ArbreBinomial prec = temp;
+		while(temp.getFrere() != null) {
+			if(temp.getCle().compareTo(min.getCle()) == 0) {
+				prec.setFrere(temp.getFrere());
+				break;
+			}
+			prec = temp;
+			temp = temp.getFrere();
 		}
-		while(A.getFrere().getFrere() != null) {
-			A = A.getFrere();
-		}
-		A.setFrere(null);
+			return this.unionFile(decap, this);
+
 	}
-	
+
 	public Hashtable<Integer, Double> resultConsIter(){
 
 		Hashtable<Integer, Double> hash = new Hashtable<Integer, Double>(8);
@@ -218,14 +255,15 @@ public class FileBinomiale {
 			int k = Integer.parseInt(str);
 			long time = System.currentTimeMillis();
 			//long time = System.nanoTime();
-			FB = FB.consIter(file);
+			BigInteger[] tab = fileToArray(file);
+			FB = FB.consIter(tab);
 			time = System.currentTimeMillis() - time;
 			//time = System.nanoTime();
 			hash.put(k, hash.get(k) + time);
 
 		}
-		//System.out.println(hash);
-		
+		System.out.println(hash);
+
 		hash.put(100, hash.get(100)/5);
 		hash.put(1000, hash.get(1000)/5);
 		hash.put(10000, hash.get(10000)/5);
@@ -234,10 +272,10 @@ public class FileBinomiale {
 		hash.put(500, hash.get(500)/5);
 		hash.put(5000, hash.get(5000)/5);
 		hash.put(50000, hash.get(50000)/5);
-		//System.out.println(hash);
+		System.out.println(hash);
 		return hash;
 	}
-	
+
 	public Hashtable<Integer, Double> resultUnion(){
 		Hashtable<Integer, Double> hash = new Hashtable<Integer, Double>(8);
 		hash.put(100, 0.0);
@@ -248,37 +286,39 @@ public class FileBinomiale {
 		hash.put(500, 0.0);
 		hash.put(5000, 0.0);
 		hash.put(50000, 0.0);
-		
+
 		File j1 = new File("data/cles_trié/jeu_1/");
 		File j2 = new File("data/cles_trié/jeu_2/");
 		File j3 = new File("data/cles_trié/jeu_3/");
 		File j4 = new File("data/cles_trié/jeu_4/");
 		File j5 = new File("data/cles_trié/jeu_5/");
-		
+
 		File[][] listejx = new File[5][1];
 		listejx[0] = j1.listFiles();
 		listejx[1] = j2.listFiles();
 		listejx[2] = j3.listFiles();
 		listejx[3] = j4.listFiles();
 		listejx[4] = j5.listFiles();
-		
+
 		for (File[] files : listejx) {
 			Arrays.sort(files, new FileNameComparator());
 		}
-		
+
 		for(File[] files : listejx) {
 			File filepivot = files[files.length/2];
-			
+			BigInteger[] reftab = fileToArray(filepivot);
+
 			for(File f : files) {
 				FileBinomiale FB = new FileBinomiale();
-				FB = FB.consIter(filepivot);
+				FB = FB.consIter(reftab);
 				FileBinomiale FB2 = new FileBinomiale();
-				FB2=FB2.consIter(f);
+				BigInteger[] tab = fileToArray(f);
+				FB2=FB2.consIter(tab);
 				String str = f.getName();
 				str = str.replaceAll("\\D+","");
 				str = str.substring(1, str.length());
 				int k = Integer.parseInt(str);
-				
+
 				long time = System.currentTimeMillis();
 				FB2.unionFile(FB, FB2);
 				time = System.currentTimeMillis() - time;
@@ -295,10 +335,10 @@ public class FileBinomiale {
 		hash.put(5000, hash.get(5000)/5);
 		hash.put(50000, hash.get(50000)/5);
 		System.out.println(hash);
-		
+
 		return hash;
 	}
-	
+
 	public void creerGraphe(Hashtable<Integer, Double> hash) {
 		XYSeries series = new XYSeries("");
 		Set<Integer> set = hash.keySet();		//
@@ -309,7 +349,7 @@ public class FileBinomiale {
 		//tu mets tes coordonnées dans un dataset
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.addSeries(series);
-		
+
 		//tu changes les titres par rapport à tes résultats
 		//Titres du graphes , titre axe abscisses, titre axe ordonnées, ton dataset
 		JFreeChart chart = ChartFactory.createXYLineChart(
@@ -323,7 +363,7 @@ public class FileBinomiale {
 		} catch (IOException e) {
 			System.err.println("Problem occurred creating chart.");
 		}
-				
+
 	}
 
 	public void afficherFileB() {

@@ -2,14 +2,22 @@ package md5;
 import java.math.BigInteger;
 
 public class HachageMD5 {
-	
-	
-	public String paddedInt32(String str) {
+
+
+	static public String paddedInt32(String str, boolean endian) {
 		int N =32 - str.length();
 		String s = "";
-		s+=str;
-		for(int i=0; i < N; i++) {
-			s += "0";
+		if(endian) {	//1 => en little endian
+			s+=str;
+			for(int i=0; i < N; i++) {
+				s += "0";
+			}
+		}
+		else {
+			for(int i=0; i < N; i++) {
+				s += "0";
+			}
+			s+=str;
 		}
 		//s+=str;
 		//s = new StringBuilder(s).reverse().toString();
@@ -19,15 +27,15 @@ public class HachageMD5 {
 
 
 
-	public BigInteger hashMD5(String mot) {
-		
-		
+	static public BigInteger hashMD5(String mot) {
+
+
 
 		int r[] = { 7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22, 
-		5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20, 
-		4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23, 
-		 6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21 };
-		
+				5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20, 
+				4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23, 
+				6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21 };
+
 		long k[] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 				0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501, 
 				0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 
@@ -50,17 +58,17 @@ public class HachageMD5 {
 		long b0 = 0xefcdab89;
 		long c0 = 0x98badcfe;
 		long d0 = 0x10325476;
-		
+
 		String motbin = "";
-		
+
 		for(char c : mot.toCharArray()) {
-			motbin += Integer.toBinaryString(c);
+			motbin += paddedInt32(Integer.toBinaryString(c), false);
+			//System.out.println(paddedInt32(Integer.toBinaryString(c), false) + c);
 		}
 		motbin += "1";
 		while(true) {
 			motbin += "0";
 			if(motbin.length()%512 == 448) {
-				//System.out.println(motbin.length());
 				break;
 			}
 		}
@@ -72,37 +80,38 @@ public class HachageMD5 {
 			}
 			motbin += "0";
 		}
-		
+		//System.out.println(motbin.length()+"hu");
+
 		long a = a0, 
 				b = b0, 
 				c = c0, 
 				d = d0;	
-		
+
 		int nb_ite = motbin.length()/512;
 		String[] tabmot = motbin.split("(?<=\\G.{512})");
-		
+
 		for(int n=0;n<nb_ite;n++) {
-			
+
 			String[] wstr = new String[16];
 			wstr = tabmot[n].split("(?<=\\G.{32})");	//séparer le mot en 16 string de 32bits
 			for(int i=0;i<16;i++) {
-				wstr[i] = new StringBuilder(wstr[i]).reverse().toString();		//on met en little endian
+			//	wstr[i] = new StringBuilder(wstr[i]).reverse().toString();		//on met en little endian
 			}
 			long[] w = new long[16];
 			for(int i=0;i<16;i++) {
 				w[i] = Long.parseLong(wstr[i], 2);
 			}
-			
+
 			long f=0;
 			int g=0;
 			for(int i=0; i<64; i++) {
 
 				if(i >= 0 && i < 16) {
-					f = (b & c) | (~d & c);
+					f = (b & c) | ((~b) & d);
 					g = i;
 				}
 				if(i >= 16 && i < 32) {
-					f = (d & b) | (~d & c );
+					f = (d & b) | ((~d) & c );
 					g = (5*i + 1) % 16;
 				}
 				if(i >= 32 && i < 48) {
@@ -110,7 +119,7 @@ public class HachageMD5 {
 					g = (3*i + 5) % 16;
 				}
 				if(i >= 48 && i < 64) {
-					f = c ^(b | ~d);
+					f = c ^(b | (~d));
 					g = (7*i) % 16;
 				}
 
@@ -126,16 +135,18 @@ public class HachageMD5 {
 			c0 += c;
 			d0 += d;
 		}
-		
-		String h0 = paddedInt32(Integer.toBinaryString((int) a0));
-		String h1 = paddedInt32(Integer.toBinaryString((int) b0));
-		String h2 = paddedInt32(Integer.toBinaryString((int) c0));
-		String h3 = paddedInt32(Integer.toBinaryString((int) d0));
+
+		String h0 = paddedInt32(Integer.toBinaryString((int) a0), true);
+		String h1 = paddedInt32(Integer.toBinaryString((int) b0), true);
+		String h2 = paddedInt32(Integer.toBinaryString((int) c0), true);
+		String h3 = paddedInt32(Integer.toBinaryString((int) d0), true);
 		System.out.println(mot);
 		h0 = h0 + h1 + h2 + h3;
+		//résultat en little endian donc on remet en big-endian pour que ce soit bon
+		h0 = new StringBuilder(h0).reverse().toString();
 		System.out.println(h0.length() + "LA TAILLE DE h0");
-		
+
 		return new BigInteger(h0,2);
-		
+
 	}
 }
