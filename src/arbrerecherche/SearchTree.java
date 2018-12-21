@@ -29,11 +29,11 @@ public class SearchTree extends Tree<BigInteger>{
 	private Node<BigInteger> insert(BigInteger el, Node<BigInteger> root) {
 		if(root == null)
 			return new Node<BigInteger>(null, el, null, null);
-		else if((el.compareTo(root.getElement()) == 1)) {
+		else if((el.compareTo(root.getElement()) >0)) {
 			root.setRightson(insert(el,root.getRightson()));
 		}
 			
-		else {
+		else if((el.compareTo(root.getElement()) <0)){
 			root.setLeftson(insert(el,root.getLeftson()));
 		}
 			
@@ -41,14 +41,15 @@ public class SearchTree extends Tree<BigInteger>{
 	}
 	
 	private Boolean search(BigInteger el, Node<BigInteger> root) {
-		if(root.getElement() == null)
+		if(root == null)
 			return false;
 		if((el.compareTo(root.getElement())) == 0)
 			return true;
-		else if((el.compareTo(root.getElement()) == 1))
+		else if((el.compareTo(root.getElement()) >0))
 			return search(el,root.getRightson());
-		else
+		else if((el.compareTo(root.getElement()) <0))
 			return search(el,root.getLeftson());
+		return false;
 			
 	}
 

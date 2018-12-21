@@ -5,7 +5,35 @@ public class HachageMD5 {
 
 
 	static public String paddedInt32(String str, boolean endian) {
+		/*if(str.length() >32) {
+			System.out.println("le string est trop grand");
+		}
+		*/
 		int N =32 - str.length();
+		String s = "";
+		if(endian) {	//1 => en little endian
+			s+=str;
+			for(int i=0; i < N; i++) {
+				s += "0";
+			}
+		}
+		else {
+			for(int i=0; i < N; i++) {
+				s += "0";
+			}
+			s+=str;
+		}
+		//s+=str;
+		//s = new StringBuilder(s).reverse().toString();
+		return s;
+	}
+	
+	static public String paddedChar16(String str, boolean endian) {
+		/*if(str.length() >32) {
+			System.out.println("le string est trop grand");
+		}
+		*/
+		int N =16 - str.length();
 		String s = "";
 		if(endian) {	//1 => en little endian
 			s+=str;
@@ -62,7 +90,7 @@ public class HachageMD5 {
 		String motbin = "";
 
 		for(char c : mot.toCharArray()) {
-			motbin += paddedInt32(Integer.toBinaryString(c), false);
+			motbin += paddedChar16(Integer.toBinaryString(c), false);
 			//System.out.println(paddedInt32(Integer.toBinaryString(c), false) + c);
 		}
 		motbin += "1";

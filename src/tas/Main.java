@@ -479,37 +479,7 @@ public class Main {
 		*/
 		//tests sur des entiers pour visualiser la structure
 		
-//		ArbreBinomial tst = new ArbreBinomial(4);
-//		ArbreBinomial tst2 = new ArbreBinomial(5);
-//		ArbreBinomial tst3 = new ArbreBinomial(9);
-//		ArbreBinomial tst4 = new ArbreBinomial(20);
-//		
-//		tst.union(tst2);
-//		tst3.union(tst4);
-//		tst.union(tst3);
-//		//System.out.println(tst.getCle());
-//		//tst.afficherArbre();
-//		FileBinomiale decap = tst.decapiter();
-//		decap.afficherArbre();
-//		
-//		FileBinomiale FB = new FileBinomiale(tst);	//ok
-//		
-//		ArbreBinomial t1 = new ArbreBinomial(40);
-//		ArbreBinomial t2 = new ArbreBinomial(50);
-//		t1.union(t2);
-//		//t1.afficherArbre();
-//		
-//		FB.ajoutMin(t1, FB);
-//		FB.ajoutMin(new ArbreBinomial(2), FB);	//ok
-//		
-//		
-//		FB = FB.ajouterArbre(new ArbreBinomial(8));
-//		FB = FB.ajouterArbre(new ArbreBinomial(5));
-//
-//		FB = FB.ajouterArbre(new ArbreBinomial());
-//		
-//		FB.afficherFileB();
-		
+	
 		/*
 		
 		 
